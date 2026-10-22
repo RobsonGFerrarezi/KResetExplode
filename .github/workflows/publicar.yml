@@ -1,0 +1,73 @@
+name: Publicar
+
+# A cada push na main, gera as duas versões e atualiza a release "latest" (sempre a versão mais nova):
+#  - KResetExplode-Setup.exe: instalador (C:\Program Files\KResetExplode), recomendado para o PC do dia a dia;
+#  - KResetExplode-Portatil.zip: um único .exe para levar no pendrive.
+# Ao criar uma tag (ex.: v0.17), gera também uma release fixa dessa versão.
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      # Actions fixadas por commit (uma tag como v4 pode ser movida para outro código).
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Portátil (arquivo único, com o .NET embutido)
+        run: dotnet publish KResetExplode.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist -nologo
+
+      - name: Arquivos para o instalador (pasta normal, sem extração em %TEMP%)
+        run: dotnet publish KResetExplode.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:DebugType=None -o publish-install -nologo
+
+      - name: Instalador (Inno Setup)
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress; if ($LASTEXITCODE) { exit $LASTEXITCODE } }
+          $version = ([xml](Get-Content KResetExplode.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          & $iscc "/DAppVersion=$version" "/DSourceDir=..\publish-install" installer\KResetExplode.iss
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+
+      - name: Montar pacote
+        shell: pwsh
+        run: |
+          Copy-Item LEIA-ME.txt dist/LEIA-ME.txt
+          Compress-Archive -Path dist/KResetExplode.exe, dist/LEIA-ME.txt -DestinationPath KResetExplode-Portatil.zip
+          Copy-Item installer-out/KResetExplode-Setup.exe KResetExplode-Setup.exe
+          # Hashes para quem baixar conferir que o arquivo não foi trocado: Get-FileHash <arquivo>
+          Get-FileHash KResetExplode-Setup.exe, KResetExplode-Portatil.zip, dist/KResetExplode.exe -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path $_.Path -Leaf)" } | Set-Content SHA256SUMS.txt -Encoding ascii
+
+      - name: Atualizar release "latest"
+        if: startsWith(github.ref, 'refs/heads/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete latest --cleanup-tag --yes
+          gh release create latest KResetExplode-Setup.exe KResetExplode-Portatil.zip SHA256SUMS.txt --target $env:GITHUB_SHA --latest --title "RESET EXPLODE (versão mais recente)" --notes-file NOVIDADES.md
+
+      - name: Release da versão (tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create $env:GITHUB_REF_NAME KResetExplode-Setup.exe KResetExplode-Portatil.zip SHA256SUMS.txt --title "RESET EXPLODE $env:GITHUB_REF_NAME" --generate-notes --latest=false

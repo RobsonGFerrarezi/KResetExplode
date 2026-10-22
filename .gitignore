@@ -1,0 +1,22 @@
+# Build
+bin/
+obj/
+publish/
+publish-install/
+installer-out/
+KResetExplode-dist/
+*.exe
+*.dll
+*.pdb
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Local
+*.log
+
+# Drivers seriais embutidos (RESET MAKER): as DLLs fazem parte dos pacotes assinados
+!Maker/Drivers/**

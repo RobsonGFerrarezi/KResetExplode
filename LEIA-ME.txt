@@ -1,0 +1,40 @@
+RESET EXPLODE
+=============
+
+Ferramenta de diagnóstico de hardware: informações do sistema, sensores, placa de vídeo,
+FPS estimado em jogos, detector de gargalo, overlay de FPS, RESET BENCH (benchmarks de CPU, GPU, memória e disco)
+RESET OTIMIZA (limpeza de memória e ajustes para jogos) e stress test de CPU / RAM / GPU.
+
+REQUISITOS
+- Windows 10 ou 11, 64 bits. Não precisa instalar o .NET (já vem dentro do .exe).
+- Para temperatura e consumo da CPU, instale o driver PawnIO (uma vez só):
+      winget install namazso.PawnIO
+- Aceite o pedido de administrador ao abrir (necessário para ler os sensores).
+- Se a temperatura/consumo da CPU não aparecerem, o menu lateral mostra o motivo e um
+  botão CORRIGIR, que instala o PawnIO com um clique. Depois feche e abra o programa.
+  Se instalou o PawnIO e mesmo assim não aparecer, reinicie o PC.
+
+DUAS VERSÕES
+- KResetExplode-Setup.exe (INSTALADOR) - recomendado para o seu PC. Instala em
+  C:\Program Files\KResetExplode, cria o atalho no Menu Iniciar e aparece em
+  "Aplicativos instalados" para desinstalar. É a versão mais protegida.
+- KResetExplode-Portatil.zip (PORTÁTIL) - um único KResetExplode.exe para levar no pendrive
+  e usar em qualquer PC sem instalar. Ao abrir, ele descompacta algumas DLLs na pasta
+  temporária do Windows e confere cada uma contra a cópia original guardada dentro do .exe;
+  se algo tiver sido alterado, ele apaga os temporários e não abre (é só abrir de novo).
+
+COMO USAR
+- Instalador: rode o KResetExplode-Setup.exe e abra pelo Menu Iniciar.
+- Portátil: descompacte o .zip e abra o KResetExplode.exe. Na primeira vez ele demora alguns segundos para iniciar.
+- Se o Windows mostrar "O Windows protegeu o computador", clique em "Mais informações"
+  e depois em "Executar assim mesmo" (o programa não tem assinatura digital paga).
+- Overlay: Ctrl + Shift + O liga e desliga.
+
+OBSERVAÇÕES
+- Placas NVIDIA mostram mais detalhes (VBIOS, limites de energia, CUDA).
+- Configurações, histórico e backups ficam em C:\Program Files\KResetExplode de cada PC (nas duas versões;
+  não vão junto com o .exe no pendrive). Essa pasta só pode ser alterada por administradores, para nenhum
+  outro programa conseguir mexer neles. O desinstalador pergunta se deve apagar; na versão portátil,
+  apague a pasta à mão se quiser remover tudo.
+- Confira o download: no PowerShell, Get-FileHash <arquivo> deve bater com o SHA256SUMS.txt da release.
+- Use os stress tests com o limite de temperatura ligado e boa ventilação.
