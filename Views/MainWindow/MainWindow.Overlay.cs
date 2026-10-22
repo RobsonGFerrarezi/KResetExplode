@@ -89,9 +89,7 @@ public partial class MainWindow
 
     private (float? Avg, float? Max) CpuClocks()
     {
-        var cores = _monitor.Rows.Where(r => r.HardwareType == HardwareType.Cpu && r.Type == SensorType.Clock &&
-                                             r.Name.StartsWith("Core #") && !r.Name.Contains("Effective") && r.RawValue > 0)
-                                 .Select(r => r.RawValue!.Value).ToList();
+        var cores = _monitor.CpuCoreClocks();
         return cores.Count > 0 ? (cores.Average(), cores.Max()) : (null, null);
     }
 

@@ -139,8 +139,7 @@ public partial class MainWindow
     /// <summary>Temperatura, clock médio dos núcleos e consumo da CPU (atualizado junto com os sensores).</summary>
     private void UpdateBenchLive()
     {
-        var clocks = _monitor.Rows.Where(r => r.HardwareType == HardwareType.Cpu && r.Type == SensorType.Clock &&
-                                              r.Name.StartsWith("Core #") && r.RawValue > 0).Select(r => r.RawValue!.Value).ToList();
+        var clocks = _monitor.CpuCoreClocks();
         BenchLive.ItemsSource = new[]
         {
             new KeyValuePair<string, string>("CPU", GameCatalog.ShortCpuName(_cpuName)),

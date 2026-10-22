@@ -76,6 +76,15 @@ public sealed class SensorMonitor : IDisposable
         }
     }
 
+    /// <summary>
+    /// Clock de cada núcleo da CPU em MHz. O LibreHardwareMonitor usa nomes como "CPU Core #1" (Intel), "Core #1" (AMD) e
+    /// "CPU P-Core #1" / "CPU E-Core #1" (Intel híbrido); o clock "efetivo" e o do barramento ficam de fora.
+    /// </summary>
+    public List<float> CpuCoreClocks() =>
+        Rows.Where(r => r.HardwareType == HardwareType.Cpu && r.Type == SensorType.Clock && r.Name.Contains("Core #")
+                     && !r.Name.Contains("Effective") && r.RawValue > 0)
+            .Select(r => r.RawValue!.Value).ToList();
+
     /// <summary>Carga total da CPU em %.</summary>
     public float? CpuLoad => Rows.FirstOrDefault(r => r.HardwareType == HardwareType.Cpu
                                                    && r.Type == SensorType.Load

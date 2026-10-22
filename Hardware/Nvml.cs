@@ -66,10 +66,24 @@ internal static class Nvml
         }
     }
 
-    /// <summary>Executa uma chamada NVML tolerando DLL/função ausentes (drivers antigos).</summary>
+    private const int ErrorUninitialized = 1;
+
+    /// <summary>Código da última leitura que falhou (0 = nenhuma). Mostrado na página Placa de vídeo para diagnóstico.</summary>
+    public static int LastError { get; private set; }
+
+    /// <summary>
+    /// Executa uma chamada NVML tolerando DLL/função ausentes (drivers antigos). Outro programa ou biblioteca no mesmo processo
+    /// pode encerrar a NVML (nvmlShutdown); nesse caso ela é inicializada de novo e a chamada repetida uma vez.
+    /// </summary>
     private static bool Call(Func<int> f)
     {
-        try { return f() == 0; }
+        try
+        {
+            int code = f();
+            if (code == ErrorUninitialized && nvmlInit() == 0) code = f();
+            if (code != 0) LastError = code;
+            return code == 0;
+        }
         catch (DllNotFoundException) { return false; }
         catch (EntryPointNotFoundException) { return false; }
     }
@@ -83,6 +97,8 @@ internal static class Nvml
         3 => "o driver não permite este ajuste nesta placa",
         4 => "sem permissão (abra o RESET EXPLODE como administrador)",
         2 => "valor fora da faixa aceita",
+        1 => "a NVML não está inicializada (erro NVML 1)",
+        15 => "o driver de vídeo reiniciou ou a placa parou de responder (erro NVML 15)",
         _ => $"erro NVML {code}"
     };
 

@@ -35,8 +35,7 @@ public partial class MainWindow
 
     private float? CpuClockAvg()
     {
-        var c = _monitor.Rows.Where(r => r.HardwareType == HardwareType.Cpu && r.Type == SensorType.Clock &&
-                                         r.Name.StartsWith("Core #") && r.RawValue > 0).Select(r => r.RawValue!.Value).ToList();
+        var c = _monitor.CpuCoreClocks();
         return c.Count > 0 ? c.Average() : null;
     }
 
@@ -127,7 +126,7 @@ public partial class MainWindow
         };
         if (_gpus.Count > 0)
         {
-            uint? clk = _gpus[0].NvmlHandle != IntPtr.Zero ? Nvml.Clock(_gpus[0].NvmlHandle, Nvml.ClockGraphics) : null;
+            uint? clk = MainGpuClock(Nvml.ClockGraphics, "GPU Core"); // NVML; se não responder, o sensor da biblioteca
             rows.Add(new("", "Placa de vídeo", GameCatalog.ShortGpuName(_gpus[0].Name),
                          F(MainGpuTemp(), "0", " °C"), F(MainGpuLoad(), "0", " %"), clk is uint c ? $"{c} MHz" : "—",
                          F(MainGpuPower(), "0", " W"), "PageGpu"));

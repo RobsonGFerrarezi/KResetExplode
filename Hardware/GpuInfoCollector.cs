@@ -30,6 +30,9 @@ public sealed class GpuInfo
         if (Nvml.EncoderUtil(h) is uint enc) list.Add(new("Encoder (NVENC)", $"{enc} %"));
         if (Nvml.DecoderUtil(h) is uint dec) list.Add(new("Decoder (NVDEC)", $"{dec} %"));
         if (Nvml.CurPcieGen(h) is uint g && Nvml.CurPcieWidth(h) is uint w) list.Add(new("PCIe em uso", $"{PcieName(g)} x{w}"));
+        // P-state é a leitura mais simples: se até ela falha, mostra o motivo (os valores ao vivo da lista abaixo, do sensor, continuam).
+        if (list.All(kv => kv.Key != "Estado de desempenho") && Nvml.LastError != 0)
+            list.Add(new("Leituras do driver NVIDIA", "falhando: " + Nvml.Explain(Nvml.LastError)));
         return list;
     }
 
