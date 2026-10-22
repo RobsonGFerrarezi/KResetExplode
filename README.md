@@ -1,10 +1,34 @@
-# RESET EXPLODE — v0.17
+# KResetExplode — v0.17
 
-> **Origem:** este projeto foi feito a partir do código do [RESET EXPLODE](https://github.com/GustavoReset/ResetExplode),
-> criado por Gustavo ([GustavoReset](https://github.com/GustavoReset)) e distribuído sob a licença MIT. O código original foi
-> reorganizado, modificado e ampliado; o aviso de copyright do autor original continua em [LICENSE](LICENSE), como a licença exige.
+Ferramenta para Windows 10/11 que reúne diagnóstico de hardware, benchmarks, stress tests, otimização para jogos e utilitários
+(o app aparece na tela como **RESET EXPLODE**).
+
+> **Baseado no [RESET EXPLODE](https://github.com/GustavoReset/ResetExplode), de Gustavo ([GustavoReset](https://github.com/GustavoReset)),
+> licença MIT.** Veja [Origem e créditos](#origem-e-créditos).
 >
-> O app roda como administrador: baixe-o só do repositório oficial deste projeto, nunca de outros lugares.
+> **Download oficial:** apenas em [github.com/RobsonGFerrarezi/KResetExplode/releases](https://github.com/RobsonGFerrarezi/KResetExplode/releases).
+> O app roda como administrador; não use versões baixadas de outros lugares.
+>
+> **Documentação completa** (como baixar, compilar, rodar, estrutura de pastas e como fazer alterações): [DOCUMENTACAO.md](DOCUMENTACAO.md).
+
+## Origem e créditos
+
+Este projeto foi feito a partir do código do **[RESET EXPLODE](https://github.com/GustavoReset/ResetExplode)**, criado por
+**Gustavo ([GustavoReset](https://github.com/GustavoReset))** e distribuído sob a licença MIT. O aplicativo como um todo, até a
+**v0.16** (informações do sistema, sensores, placa de vídeo, benchmarks, stress tests, RESET JOGOS, RESET OTIMIZA, RESET OC,
+RESET MAKER, integração RGB, interface e tema), é obra do autor original. Os nomes que aparecem na tela (RESET EXPLODE, RESET JOGOS,
+RESET BENCH...) foram mantidos.
+
+O aviso de copyright do autor original continua no arquivo [LICENSE](LICENSE), como a licença MIT exige; mantenha-o em qualquer cópia ou fork.
+
+O que este repositório (KResetExplode) mudou a partir dessa base:
+- **Segurança** para um app que roda como administrador: dados confiáveis só em `%ProgramFiles%\KResetExplode`, programas e links abertos
+  sem administrador, conferência de assinatura digital dos downloads, DLLs carregadas só do System32 e proteção da versão portátil.
+- **Distribuição** em instalador (Inno Setup) e versão portátil de arquivo único.
+- **Novas funções (v0.17):** Checkup para jogos, Limpeza, atualizador de drivers com comparação de versões, Reparar Windows,
+  atualizar programas pelo winget, teste/troca de DNS, Alertas em segundo plano, Comparar benchmarks e novos ajustes do Windows.
+- **Organização do código:** pastas por área, um arquivo por página da janela principal e trechos reescritos com nomes claros.
+- **Identidade:** nome do projeto, executável e instalador `KResetExplode`, e logo "KR".
 
 ## Novidades da v0.17
 - **Instalador + versão portátil**, **Checkup para jogos**, atualizador de drivers com comparação de versões e dispositivos com problema,
@@ -132,7 +156,7 @@ App WPF (.NET 8) com:
 ## Segurança
 O programa roda como administrador, então tudo o que ele executa, carrega ou restaura fica protegido contra troca por outros programas:
 - Configurações, backups de "Restaurar", downloads de drivers e o SDK da Corsair ficam em `%ProgramFiles%\KResetExplode`
-  (só administradores gravam). Ao abrir pela primeira vez, as configurações antigas de `%AppData%\KResetExplode` são importadas
+  (só administradores gravam). Ao abrir pela primeira vez, as configurações antigas de `%AppData%\ResetExplode` (local usado até a v0.16) são importadas
   (sem os itens de "Restaurar removidos" da inicialização que seriam gravados com administrador) — `SecureFiles.cs`, `AppSettings.cs`.
 - Jogos, programas auxiliares, OpenRGB fora de Arquivos de Programas, lojas e links abrem **sem** administrador, pelo Explorer (`ShellLauncher.cs`).
 - Ferramentas do Windows (`pnputil`, `powercfg`, `powershell`) são chamadas pelo caminho completo do System32 e as DLLs do sistema/driver
@@ -176,10 +200,11 @@ Um único projeto WPF (`KResetExplode.csproj`, namespace `KResetExplode`), com a
 | `Assets/` · `installer/` | Ícones e imagens · script do instalador (Inno Setup). |
 
 A lógica fica nas classes das pastas de área; os arquivos `MainWindow.<Página>.cs` só ligam a tela a elas.
+Detalhes de cada arquivo e receitas para alterar o app (nova página, novo ajuste, novo benchmark...) em [DOCUMENTACAO.md](DOCUMENTACAO.md).
 
 ## Base utilizada
 - Projeto derivado do [RESET EXPLODE](https://github.com/GustavoReset/ResetExplode) de GustavoReset (licença MIT).
-- Interface, stress test e gráficos: código próprio.
+- Interface, stress test e gráficos: código escrito no projeto original, sem bibliotecas de terceiros.
 - Sensores: [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) (MPL 2.0) — mantenha o aviso de licença ao distribuir.
 - Informações do sistema: WMI do Windows.
 - Medição de FPS: [TraceEvent](https://github.com/microsoft/perfview) (MIT), da Microsoft, para ler eventos ETW.
@@ -187,16 +212,19 @@ A lógica fica nas classes das pastas de área; os arquivos `MainWindow.<Página
 
 ## Requisitos
 - Windows 10/11
-- .NET 8 SDK (https://dotnet.microsoft.com/download)
+- .NET 8 SDK ou mais novo (https://dotnet.microsoft.com/download); para rodar sem publicar, o .NET 8 Desktop Runtime
 - Driver **PawnIO** (temperatura/consumo da CPU): `winget install namazso.PawnIO`
   A LibreHardwareMonitorLib 0.9.6+ usa o PawnIO no lugar do antigo WinRing0, que o Windows Defender bloqueia.
 
 ## Como rodar
 ```
+git clone https://github.com/RobsonGFerrarezi/KResetExplode.git
 cd KResetExplode
 dotnet run
 ```
-O app pede privilégio de administrador (necessário para sensores de baixo nível).
+O app exige administrador (necessário para sensores de baixo nível): rode o `dotnet run` num terminal aberto como administrador,
+ou abra o `bin\Debug\net8.0-windows\KResetExplode.exe` compilado. Outras formas (sem o .NET 8 instalado, teste sem administrador)
+em [DOCUMENTACAO.md](DOCUMENTACAO.md#4-compilar-e-rodar-a-partir-do-código).
 Para gerar as versões de distribuição: dê dois cliques em `publicar.bat`. Ele gera em `..\KResetExplode-dist`:
 - `Portatil\KResetExplode.exe` + `LEIA-ME.txt`: arquivo único com o .NET embutido, para levar no pendrive (no outro PC só é preciso o PawnIO);
 - `KResetExplode-Setup.exe`: instalador para `C:\Program Files\KResetExplode` (`installer\KResetExplode.iss`), se o
@@ -243,8 +271,9 @@ Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release 
 - Comparar resultados de benchmark entre PCs / histórico de relatórios
 - Leitura direta de SPD / Super I/O
 - RESET INTEGRAÇÃO: perfis salvos, efeitos por jogo, SDKs nativos da MSI/ASUS/Gigabyte se forem liberados
-- Versão com instalador e assinatura digital
+- Assinatura digital do `.exe`
 
 ## Licença
 
-MIT — veja o arquivo [LICENSE](LICENSE).
+MIT — veja o arquivo [LICENSE](LICENSE). Copyright do código original: Gustavo (GustavoReset); as alterações deste repositório
+seguem a mesma licença.

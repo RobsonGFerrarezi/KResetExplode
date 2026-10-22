@@ -1,5 +1,8 @@
-RESET EXPLODE
-=============
+RESET EXPLODE (KResetExplode)
+=============================
+
+Download oficial: https://github.com/RobsonGFerrarezi/KResetExplode/releases
+Baseado no RESET EXPLODE de Gustavo (GustavoReset), https://github.com/GustavoReset/ResetExplode - licença MIT.
 
 Ferramenta de diagnóstico de hardware: informações do sistema, sensores, placa de vídeo,
 FPS estimado em jogos, detector de gargalo, overlay de FPS, RESET BENCH (benchmarks de CPU, GPU, memória e disco)
